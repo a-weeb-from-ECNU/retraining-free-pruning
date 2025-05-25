@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from transformers import BertConfig, BertModel
-from .qnli_prune_model import getPrunedModel
+from hardPrune.qnli.qnli_prune_model import getPrunedModel
 from transformers.models.bert.modeling_bert import BertEmbeddings
 
 class StandardBertSelfAttention(nn.Module):
@@ -386,12 +386,12 @@ def verify_model_structure(model):
                     print(f"✗ 缺少 layer.{module_name}")
 
 # 使用示例
-def getStandardModel():
+def getStandardModel(base_dir: str):
     """
     使用示例 - 针对你的具体剪枝模型
     """
     # 假设你已经加载了剪枝模型
-    pruned_model = getPrunedModel()
+    pruned_model = getPrunedModel(base_dir)
     
     # 转换为标准结构
     standard_model = convert_pruned_to_standard_bert(pruned_model)
@@ -404,6 +404,3 @@ def getStandardModel():
     print(standard_model)
     return standard_model
     
-
-if __name__ == "__main__":
-    getStandardModel()

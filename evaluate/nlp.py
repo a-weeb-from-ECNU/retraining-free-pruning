@@ -3,7 +3,7 @@ import torch
 from dataset.glue import glue_dataloader
 from dataset.squad import squad_test_dataloader
 from evaluate.glue import eval_glue_acc, eval_glue_acc2
-from evaluate.squad import eval_squad_acc
+from evaluate.squad import eval_squad_acc,eval_squad_acc2
 
 
 @torch.no_grad()
@@ -56,7 +56,7 @@ def test_accuracy2(model, head_mask, neuron_mask, tokenizer, task_name):
             batch_size=test_batch_size,
             pad_to_max=False,
         )
-        acc = eval_squad_acc(
+        acc = eval_squad_acc2(
             model,
             head_mask,
             neuron_mask,

@@ -237,12 +237,14 @@ def load_and_transfer_weights(model, state_dict, head_mask, neuron_mask):
     print("权重转移完成!")
 
 
-def getPrunedModel():
+def getPrunedModel(base_dir: str):
     try:
         # 修复4：检查文件是否存在
-        head_mask_path = "outputs/bert-base-uncased/qnli/mac/0.5/seed_0/head_mask.pt"
-        neuron_mask_path = "outputs/bert-base-uncased/qnli/mac/0.5/seed_0/neuron_mask.pt"
-        model_path = "pretrained/qnli/pytorch_model.bin"
+        head_mask_path = f"{base_dir}/head_mask.pt"
+        neuron_mask_path = f"{base_dir}/neuron_mask.pt"
+        model_path = f"{'/'.join((base_dir.replace('outputs', 'pretrained').split('/'))[:3])}/pytorch_model.bin"
+        
+        print(model_path)
         
         print("加载mask文件...")
         head_mask = torch.load(head_mask_path).bool()
@@ -288,7 +290,3 @@ def getPrunedModel():
         import traceback
         traceback.print_exc()
         return None
-
-
-if __name__ == "__main__":
-    model = getPrunedModel()
