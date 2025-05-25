@@ -23,9 +23,9 @@ from prune.fisher import collect_mask_grads
 from prune.search import search_mac, search_latency
 from prune.rearrange import rearrange_mask
 from prune.rescale import rescale_mask
-from evaluate.nlp import test_accuracy
+from evaluate.nlp import test_accuracy2
 from utils.schedule import get_pruning_schedule
-
+from hardPrune.qnli.standardise import getStandardModel
 
 logger = logging.getLogger(__name__)
 
@@ -138,7 +138,10 @@ def main():
     )
 
     # Prepare the model
-    model = model.cuda()
+    
+    # model = model.cuda()
+    model = getStandardModel().cuda()
+    
     model.eval()
     for param in model.parameters():
         param.requires_grad_(False)
@@ -146,6 +149,12 @@ def main():
     full_head_mask = torch.ones(config.num_hidden_layers, config.num_attention_heads).cuda()
     full_neuron_mask = torch.ones(config.num_hidden_layers, config.intermediate_size).cuda()
 
+    #evalute Original acc
+    test_acc = test_accuracy2(model, full_head_mask, full_neuron_mask, tokenizer, args.task_name)
+    logger.info(f"{args.task_name} Test accuracy: {test_acc:.4f}")
+    
+    return
+    
     start = time.time()
     # Search the optimal mask
     head_grads, neuron_grads = collect_mask_grads(
@@ -215,12 +224,12 @@ def main():
     logger.info(f"{args.task_name} Pruning time (s): {end - start}")
 
     # Evaluate the accuracy
-    test_acc = test_accuracy(model, head_mask, neuron_mask, tokenizer, args.task_name)
+    test_acc = test_accuracy2(model, head_mask, neuron_mask, tokenizer, args.task_name)
     logger.info(f"{args.task_name} Test accuracy: {test_acc:.4f}")
 
     # Save the masks
-    torch.save(head_mask, os.path.join(args.output_dir, "head_mask.pt"))
-    torch.save(neuron_mask, os.path.join(args.output_dir, "neuron_mask.pt"))
+    # torch.save(head_mask, os.path.join(args.output_dir, "head_mask.pt"))
+    # torch.save(neuron_mask, os.path.join(args.output_dir, "neuron_mask.pt"))
 
 
 if __name__ == "__main__":
